@@ -1,13 +1,12 @@
 package com.ozy.pizzacloud.controller;
 
+import com.ozy.pizzacloud.exception.PizzaNotFoundException;
 import com.ozy.pizzacloud.model.Pizza;
 import com.ozy.pizzacloud.model.PizzaOrder;
 import com.ozy.pizzacloud.repository.PizzaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -22,7 +21,7 @@ public class OrderController {
     }
 
     @GetMapping("/current")
-    public String orderForm(UUID pizzaId, Model model) {
+    public String orderForm(@RequestParam UUID pizzaId, Model model) {
 
         PizzaOrder pizzaOrder = new PizzaOrder();
 
@@ -35,7 +34,7 @@ public class OrderController {
     }
 
     @PostMapping("/{pizzaId}")
-    public String processOrder(UUID pizzaId, PizzaOrder pizzaOrder) {
+    public String processOrder(@PathVariable("pizzaId") UUID pizzaId, PizzaOrder pizzaOrder) {
 
         // Save the order
 
@@ -46,7 +45,9 @@ public class OrderController {
     //TODO
     private Pizza getPizza(UUID pizzaId) {
         // Get the pizza from repository based on it's id
-        return new Pizza();
+        return pizzaRepository.readAll().stream().filter(pizza->pizza.getId().equals(pizzaId)).findFirst()
+                .orElseThrow(()->new PizzaNotFoundException("Pizza not found"));
+
     }
 
 }
